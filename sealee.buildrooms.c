@@ -16,17 +16,23 @@ int main() {
 	struct stat st = {0}; //Make a struct to hold the directory stats
 
 	if (stat(dir, &st) == -1) { //If the directory does not already exist
+
 		(mkdir(dir, 0755)); //Make the directory
 		printf("Directory created\n");
 
 		FILE *file;
+		int filePid = getpid(); //Generate pid to append to file name
 		strncat(dir, "/", NAME_MAX + 1); //Append slash to end of directory name
-		//TODO: Append pid to filename
-		strncat(dir, "filename.txt", NAME_MAX + 1); //Finish fullpath to file by appending filename
+		char fullPath[NAME_MAX + 1]; 
+		char *fileStart = "roomfile"; //Set up the start of the filename
+		snprintf(fullPath, NAME_MAX + 1, "%s%d", fileStart, filePid); //Put the file name start and pid together
+		strncat(dir, fullPath, NAME_MAX + 1); //Append the filename to the directory path
+		strncat(dir, ".txt", NAME_MAX + 1); //Finish fullpath to file by appending file type
+
 		printf(dir);
 		printf("\n");
-		file = fopen(dir, "w"); //Make the file
-		fclose(file);
+		file = fopen(dir, "w"); //Make the file in the correct directory
+		fclose(file); //Close file after finishing operations
 
 	} else {
 		perror("Error making directory\n");
