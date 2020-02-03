@@ -53,7 +53,6 @@ bool isGraphFull(struct room* rooms) {
  * **************************************************************************************************************/
 struct room getRandomRoom(struct room* rooms) {
 	int randNum = rand() % 7;
-	printf("Number: %d\n", randNum);
 	return rooms[randNum];
 }
 
@@ -98,6 +97,7 @@ void connectRoom(struct room* x, struct room* y) {
 	x->numConnections++;
 	y->connections[y->numConnections] = x;
 	y->numConnections++;
+	return;
 }
 
 /*****************************************************************************************************************
@@ -134,8 +134,8 @@ void addRandomConnection(struct room* rooms) {
 		b = getRandomRoom(rooms);
 	} while (!canAddConnectionFrom(b) || isSameRoom(a, b) || connectionAlreadyExists(a, b));
 
-	connectRoom(&a, &b);
-	//connectRoom(a, b);
+	connectRoom(&rooms[a.id], &rooms[b.id]);
+	return;
 }
 
 /*****************************************************************************************************************
@@ -170,9 +170,15 @@ int main() {
 		rooms[i].name = roomNames[0][randNums[i]];
 	}
 
-	while (!isGraphFull(rooms) {
-		
+	//Connect the rooms together:
+	int k = 0;
+	while (!isGraphFull(rooms)) {
+		printf("Iteration %d\n", k);
+		addRandomConnection(rooms);
+		k++;	
 	}
+
+
 
 	free(rooms);	
 
