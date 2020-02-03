@@ -6,8 +6,68 @@
 #include <limits.h>
 
 int main() {
+
+	//Struct for rooom type:
+	struct room {
+		int id;
+		char* name;
+		int numConnections;
+		struct room* connections[6];
+		char* type[10];
+	};
+
+	//Hard code pool of 10 possible room names:
+	char* roomNames[10][10] = { 
+			"Saferoom\n",
+			"Bossroom\n",
+			"Acidroom\n",
+			"Coalroom\n",
+			"Coinroom\n",
+			"Hyperoom\n",
+			"Herbroom\n",
+			"Lionroom\n",
+			"Moldroom\n",
+			"Traproom\n"
+	};
+
+	struct room* rooms = calloc(7, sizeof(struct room)); //Declare array of 7 rooms to be used in adventure
+
+	//Create an array of random numbers to be used to ranadomize room names:
+	int randNums[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}; //Initialize array
+
+	srand(time(0)); //Seed random number generator
+
+	//Shuffle array:
+	int j;
+	for (j = 0; j < 10; j++) {
+		int temp = randNums[j];
+		int randj = rand () % 10;
+		randNums[j] = randNums[randj];
+		randNums[randj] = temp;
+	}	
 	
-	int dirPid = getpid(); //Generate pid to append to directory name
+	//Initialize names and id's of rooms:
+	int i;
+	for (i = 0; i < 7; i++) {
+		rooms[i].id = i;
+		rooms[i].numConnections = 0;
+		rooms[i].name = roomNames[0][randNums[i]];
+		printf("Room %d: %s", i, rooms[i].name); 
+	}
+
+	
+
+	/*printf("Test room id: %d\nTest room name: %sTest room number of connections: %d\nTest room connections: %p\nTest room type: %s\n", testRoom.id, testRoom.name, testRoom.numConnections, testRoom.connections[0], testRoom.type);*/
+
+	free(rooms);	
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	//for (i=0; i < 7; i++) {
+	//	printf(rooms[i]->name);
+	//}
+	
+	/*int dirPid = getpid(); //Generate pid to append to directory name
 	char dir[NAME_MAX + 1];
 	char *dirStart = "sealee.rooms.";
 
@@ -36,6 +96,7 @@ int main() {
 
 	} else {
 		perror("Error making directory\n");
-	}
+	}*/
+
 	return 0;
 }
