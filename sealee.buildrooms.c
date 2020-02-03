@@ -4,38 +4,154 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <limits.h>
+#include <stdbool.h>
 
+//Struct room type:
+struct room {
+	int id;
+	char* name;
+	int numConnections;
+	struct room* connections[6];
+	char* type;
+};
+
+//Hardcode array of possible room names
+char* roomNames[10][10] = {
+	"Saferoom\n",
+	"Bossroom\n",
+	"Acidroom\n",
+	"Coalroom\n",
+	"Coinroom\n",
+	"Hyperoom\n",
+	"Herbroom\n",
+	"Lionroom\n",
+	"Moldroom\n",
+	"Traproom\n"
+};
+
+/*****************************************************************************************************************
+ * NAME: TODO
+ * SYNOPSIS:
+ * DESCRIPTION:
+ * AUTHOR:
+ * **************************************************************************************************************/
+bool isGraphFull(struct room* rooms) {
+	int i;
+	for (i = 0; i < 7; i++) {
+		if (rooms[i].numConnections < 3) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/*****************************************************************************************************************
+ * NAME: TODO
+ * SYNOPSIS:
+ * DESCRIPTION:
+ * AUTHOR:
+ * **************************************************************************************************************/
+struct room getRandomRoom(struct room* rooms) {
+	int randNum = rand() % 7;
+	printf("Number: %d\n", randNum);
+	return rooms[randNum];
+}
+
+/*****************************************************************************************************************
+ * NAME: TODO
+ * SYNOPSIS:
+ * DESCRIPTION:
+ * AUTHOR:
+ * **************************************************************************************************************/
+bool canAddConnectionFrom(struct room x) {
+	if (x.numConnections < 6) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/*****************************************************************************************************************
+ * NAME: TODO
+ * SYNOPSIS:
+ * DESCRIPTION:
+ * AUTHOR:
+ * **************************************************************************************************************/
+bool connectionAlreadyExists(struct room x, struct room y) {
+	int i;
+	for (i = 0; i < y.numConnections; i++) {
+		if (x.id == y.connections[i]->id) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/*****************************************************************************************************************
+ * NAME: TODO
+ * SYNOPSIS:
+ * DESCRIPTION:
+ * AUTHOR:
+ * **************************************************************************************************************/
+void connectRoom(struct room* x, struct room* y) {
+	x->connections[x->numConnections] = y;
+	x->numConnections++;
+	y->connections[y->numConnections] = x;
+	y->numConnections++;
+}
+
+/*****************************************************************************************************************
+ * NAME: TODO
+ * SYNOPSIS:
+ * DESCRIPTION:
+ * AUTHOR:
+ * **************************************************************************************************************/
+bool isSameRoom(struct room x, struct room y) {
+	if (x.id == y.id) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/*****************************************************************************************************************
+ * NAME: TODO
+ * SYNOPSIS:
+ * DESCRIPTION:
+ * AUTHOR:
+ * **************************************************************************************************************/
+void addRandomConnection(struct room* rooms) {
+	struct room a, b;
+
+	while (true) {
+		a = getRandomRoom(rooms);
+		if (canAddConnectionFrom(a)) {
+			break;
+		}
+	}
+
+	do {
+		b = getRandomRoom(rooms);
+	} while (!canAddConnectionFrom(b) || isSameRoom(a, b) || connectionAlreadyExists(a, b));
+
+	connectRoom(a, b);
+	connectRoom(a, b);
+}
+
+/*****************************************************************************************************************
+ * NAME: TODO
+ * SYNOPSIS:
+ * DESCRIPTION:
+ * AUTHOR:
+ * **************************************************************************************************************/
 int main() {
 
-	//Struct for rooom type:
-	struct room {
-		int id;
-		char* name;
-		int numConnections;
-		struct room* connections[6];
-		char* type[10];
-	};
+	srand(time(0)); //Seed random number generator
 
-	//Hard code pool of 10 possible room names:
-	char* roomNames[10][10] = { 
-			"Saferoom\n",
-			"Bossroom\n",
-			"Acidroom\n",
-			"Coalroom\n",
-			"Coinroom\n",
-			"Hyperoom\n",
-			"Herbroom\n",
-			"Lionroom\n",
-			"Moldroom\n",
-			"Traproom\n"
-	};
-
-	struct room* rooms = calloc(7, sizeof(struct room)); //Declare array of 7 rooms to be used in adventure
+	struct room* rooms = calloc(7, sizeof(struct room)); //Create array of rooms to be used in adventure program
 
 	//Create an array of random numbers to be used to ranadomize room names:
 	int randNums[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}; //Initialize array
-
-	srand(time(0)); //Seed random number generator
 
 	//Shuffle array:
 	int j;
@@ -46,18 +162,27 @@ int main() {
 		randNums[randj] = temp;
 	}	
 	
-	//Initialize names and id's of rooms:
+	//Initialize the rooms:
 	int i;
 	for (i = 0; i < 7; i++) {
 		rooms[i].id = i;
 		rooms[i].numConnections = 0;
 		rooms[i].name = roomNames[0][randNums[i]];
-		printf("Room %d: %s", i, rooms[i].name); 
 	}
 
-	
+	struct room room1;
+	struct room room2;
+	room1.id = 1;
+	room1.name = "room1";
+	room1.numConnections = 0;
+	room2.id = 2;
+	room2.name = "room2";
+	room2.numConnections = 0;
 
-	/*printf("Test room id: %d\nTest room name: %sTest room number of connections: %d\nTest room connections: %p\nTest room type: %s\n", testRoom.id, testRoom.name, testRoom.numConnections, testRoom.connections[0], testRoom.type);*/
+	connectRoom(&room1, &room2);
+
+	printf("Room 1's num of connections: %d\n", room1.numConnections);
+	printf("Room 2's num of connections: %d\n", room2.numConnections);
 
 	free(rooms);	
 
