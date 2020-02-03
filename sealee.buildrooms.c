@@ -171,14 +171,18 @@ int main() {
 	}
 
 	//Connect the rooms together:
-	int k = 0;
 	while (!isGraphFull(rooms)) {
-		printf("Iteration %d\n", k);
-		addRandomConnection(rooms);
-		k++;	
+		addRandomConnection(rooms);	
 	}
 
-
+	int k;
+	for (k = 0; k < 7; k++) {
+		printf("Room %d:\n name: %s\n id: %d\n numConnections: %d\n ", k, rooms[k].name, rooms[k].id, rooms[k].numConnections);
+		int l;
+		for (l = 0; l < rooms[k].numConnections; l++) {
+			printf("connections: id: %d\n name: %s\n", rooms[k].connections[l]->id, rooms[k].connections[l]->name);
+		}
+	}
 
 	free(rooms);	
 
