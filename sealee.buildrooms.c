@@ -134,8 +134,8 @@ void addRandomConnection(struct room* rooms) {
 		b = getRandomRoom(rooms);
 	} while (!canAddConnectionFrom(b) || isSameRoom(a, b) || connectionAlreadyExists(a, b));
 
-	connectRoom(a, b);
-	connectRoom(a, b);
+	connectRoom(&a, &b);
+	//connectRoom(a, b);
 }
 
 /*****************************************************************************************************************
@@ -170,19 +170,9 @@ int main() {
 		rooms[i].name = roomNames[0][randNums[i]];
 	}
 
-	struct room room1;
-	struct room room2;
-	room1.id = 1;
-	room1.name = "room1";
-	room1.numConnections = 0;
-	room2.id = 2;
-	room2.name = "room2";
-	room2.numConnections = 0;
-
-	connectRoom(&room1, &room2);
-
-	printf("Room 1's num of connections: %d\n", room1.numConnections);
-	printf("Room 2's num of connections: %d\n", room2.numConnections);
+	while (!isGraphFull(rooms) {
+		
+	}
 
 	free(rooms);	
 
