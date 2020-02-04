@@ -7,39 +7,54 @@
 #include <stdbool.h>
 #include <dirent.h>
 
-int main() {
-	
+/*****************************************************************************************************************
+ * NAME: TODO
+ * SYNOPSIS:
+ * DESCRIPTION:
+ * AUTHOR:
+ * **************************************************************************************************************/
+char* findNewestDir () {
 	int newestDirTime = -1;
-	char targetDirPrefix[32] = "sealee.rooms.";
-	char newestDirName[256];
-	memset(newestDirName, '\0', sizeof(newestDirName));
+        char targetDirPrefix[32] = "sealee.rooms.";
+        char* newestDirName = calloc(256, sizeof(char));
+        memset(newestDirName, '\0', sizeof(newestDirName));
 
-	DIR* dirToCheck;
-	struct dirent* fileInDir;
-	struct stat dirAttributes;
+        DIR* dirToCheck;
+        struct dirent* fileInDir;
+        struct stat dirAttributes;
 
-	dirToCheck = opendir(".");
+        dirToCheck = opendir(".");
 
-	if (dirToCheck > 0) {
-		while ((fileInDir = readdir(dirToCheck)) != NULL) {
-			if (strstr(fileInDir->d_name, targetDirPrefix) != NULL) {
-				printf("Found the prefix: %s\n", fileInDir->d_name);
-				stat(fileInDir->d_name, &dirAttributes);
+        if (dirToCheck > 0) {
+                while ((fileInDir = readdir(dirToCheck)) != NULL) {
+                        if (strstr(fileInDir->d_name, targetDirPrefix) != NULL) {
+                                stat(fileInDir->d_name, &dirAttributes);
 
-				if((int)dirAttributes.st_mtime > newestDirTime) {
-					newestDirTime = (int)dirAttributes.st_mtime;
-					memset(newestDirName, '\0', sizeof(newestDirName));
-					strcpy(newestDirName, fileInDir->d_name);
-					printf("Newer subdir: %s, new time: %d\n",
-						fileInDir->d_name, newestDirTime);
-				}
-			}
-		}
-	}
-	
-	closedir(dirToCheck);
+                                if((int)dirAttributes.st_mtime > newestDirTime) {
+                                        newestDirTime = (int)dirAttributes.st_mtime;
+                                        memset(newestDirName, '\0', sizeof(newestDirName));
+                                        strcpy(newestDirName, fileInDir->d_name);
+                                }
+                        }
+                }
+        }
 
-	printf("Newest entry found is: %s\n", newestDirName);
+        closedir(dirToCheck);
+
+        return newestDirName;
+}
+
+/*****************************************************************************************************************
+ * NAME: TODO
+ * SYNOPSIS:
+ * DESCRIPTION:
+ * AUTHOR:
+ * **************************************************************************************************************/
+int main() {
+
+	char* dir = findNewestDir();	
+	printf("Newest dir: %s", dir);
+	free(dir);
 
 	return 0;
 }
