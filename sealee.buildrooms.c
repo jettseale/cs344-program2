@@ -17,16 +17,16 @@ struct room {
 
 //Hardcode array of possible room names
 char* roomNames[10][10] = {
-	"Saferoom\n",
-	"Bossroom\n",
-	"Acidroom\n",
-	"Coalroom\n",
-	"Coinroom\n",
-	"Hyperoom\n",
-	"Herbroom\n",
-	"Lionroom\n",
-	"Moldroom\n",
-	"Traproom\n"
+	"Saferoom",
+	"Bossroom",
+	"Acidroom",
+	"Coalroom",
+	"Coinroom",
+	"Hyperoom",
+	"Herbroom",
+	"Lionroom",
+	"Moldroom",
+	"Traproom"
 };
 
 /*****************************************************************************************************************
@@ -168,6 +168,13 @@ int main() {
 		rooms[i].id = i;
 		rooms[i].numConnections = 0;
 		rooms[i].name = roomNames[0][randNums[i]];
+		if (i == 0) {
+			rooms[i].type = "START_ROOM";
+		} else if (i == 6) {
+			rooms[i].type = "END_ROOM";
+		} else {
+			rooms[i].type = "MID_ROOM";
+		}
 	}
 
 	//Connect the rooms together:
@@ -175,53 +182,54 @@ int main() {
 		addRandomConnection(rooms);	
 	}
 
-	int k;
-	for (k = 0; k < 7; k++) {
-		printf("Room %d:\n name: %s\n id: %d\n numConnections: %d\n ", k, rooms[k].name, rooms[k].id, rooms[k].numConnections);
+	//Create and populate directory and files:
+	int dirPid = getpid(); //Generate pid to append to directory name
+	char dir[NAME_MAX + 1];
+	char* dirStart = "sealee.rooms.";
+	
+	snprintf(dir, NAME_MAX + 1, "%s%d", dirStart, dirPid); //Append directory pid to directory name
+	
+	struct stat st = {0}; //Make a struct to hold the dir stats
+	
+	if (stat(dir, &st) == -1) { //If the dir does not already exist
+		mkdir(dir, 0755); //Make the directory
+		strncat(dir, "/", NAME_MAX + 1); //Append slash to end of dir name
+
 		int l;
-		for (l = 0; l < rooms[k].numConnections; l++) {
-			printf("connections: id: %d\n name: %s\n", rooms[k].connections[l]->id, rooms[k].connections[l]->name);
+		for (l = 0; l < 7; l++) {
+			char temp[NAME_MAX + 1]; //Temporary string to hold the path to the lth file
+			FILE* file;
+
+			strcpy(temp, dir);
+			strncat(temp, rooms[l].name, NAME_MAX + 1); //Append filename to end of dir path
+			file = fopen(temp, "w"); //Make file in the correct dir
+
+			fputs("ROOM NAME: ", file); 
+			fputs(rooms[l].name, file);
+			fputs("\n", file);
+
+			int k;
+			for (k = 0; k < rooms[l].numConnections; k++) {
+				fputs("CONNECTION ", file);
+				char conn[NAME_MAX + 1];
+				snprintf(conn, NAME_MAX + 1, "%d", k + 1);
+				fputs(conn, file);
+				fputs(": ", file);
+				fputs(rooms[l].connections[k]->name, file);
+				fputs("\n", file);	
+			}
+
+			fputs("ROOM TYPE: ", file);
+			fputs(rooms[l].type, file);
+			fputs("\n", file);
+
+			fclose(file); //Close file after finishing operations
 		}
+	} else {
+		perror("Error making the directory\n");
 	}
 
 	free(rooms);	
-
-//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-	//for (i=0; i < 7; i++) {
-	//	printf(rooms[i]->name);
-	//}
-	
-	/*int dirPid = getpid(); //Generate pid to append to directory name
-	char dir[NAME_MAX + 1];
-	char *dirStart = "sealee.rooms.";
-
-	snprintf(dir, NAME_MAX + 1, "%s%d", dirStart, dirPid); //Append directory pid to directory name
-
-	struct stat st = {0}; //Make a struct to hold the directory stats
-
-	if (stat(dir, &st) == -1) { //If the directory does not already exist
-
-		(mkdir(dir, 0755)); //Make the directory
-		printf("Directory created\n");
-
-		FILE *file;
-		int filePid = getpid(); //Generate pid to append to file name
-		strncat(dir, "/", NAME_MAX + 1); //Append slash to end of directory name
-		char fullPath[NAME_MAX + 1]; 
-		char *fileStart = "roomfile"; //Set up the start of the filename
-		snprintf(fullPath, NAME_MAX + 1, "%s%d", fileStart, filePid); //Put the file name start and pid together
-		strncat(dir, fullPath, NAME_MAX + 1); //Append the filename to the directory path
-		strncat(dir, ".txt", NAME_MAX + 1); //Finish fullpath to file by appending file type
-
-		printf(dir);
-		printf("\n");
-		file = fopen(dir, "w"); //Make the file in the correct directory
-		fclose(file); //Close file after finishing operations
-
-	} else {
-		perror("Error making directory\n");
-	}*/
 
 	return 0;
 }
