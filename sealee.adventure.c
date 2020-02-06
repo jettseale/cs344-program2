@@ -7,6 +7,15 @@
 #include <stdbool.h>
 #include <dirent.h>
 
+//Struct room type:
+struct room {
+	int id;
+	char* name;
+	int numConnections;
+	char* connectionNames[6];
+	char* type;
+};
+
 /*****************************************************************************************************************
  * NAME: TODO
  * SYNOPSIS:
@@ -51,10 +60,66 @@ char* findNewestDir () {
  * AUTHOR:
  * **************************************************************************************************************/
 int main() {
+	char* dirPath = findNewestDir();
+	strncat(dirPath, "/", 256);	
+	
+	struct dirent* de;
+	DIR* dr = opendir(dirPath);
 
-	char* dir = findNewestDir();	
-	printf("Newest dir: %s", dir);
-	free(dir);
+	if (dr == NULL) {
+		perror("Error opening directory");
+		exit(1);
+	}
+
+	char currentRoom[256];
+	char endRoom[256];
+	char currentFilePath[256];
+
+	//Find the start room and end rooms:
+	FILE* file;
+	char fileName[256];
+	char line[256];
+	memset(fileName, '\0', 256);
+	while ((de = readdir(dr)) != NULL) {
+		if (strncmp(de->d_name, ".", 256) && strncmp(de->d_name, "..", 256)) {
+			char fullPath[256];
+			memset(fullPath, '\0', 256);
+			sprintf(fullPath, "%s", dirPath);
+			sprintf(fileName, "%s", de->d_name);
+			strncat(fullPath, fileName, 256);
+			file = fopen(fullPath, "r");
+			if (file == NULL) { 
+				perror("Error opening file");
+				exit(1);
+			}
+			while (!feof(file)) {
+				fgets(line, 256, file);
+				if (!strncmp(line, "ROOM TYPE: START_ROOM\n", 256)) {
+					strcpy(currentRoom, de->d_name);
+					strcpy(currentFilePath, fullPath);
+				} else if (!strncmp(line, "ROOM TYPE: END_ROOM\n", 256)) {
+					strcpy(endRoom, de->d_name);
+				}
+			}
+			fclose(file);
+		}
+	}
+	
+	printf("Start room: %s\n", currentRoom);
+	printf("Current room path: %s\n", currentFilePath);
+	printf("End room: %s\n", endRoom);
+
+	bool endRoomReached = false;
+	char* possibleConnections[6];
+	FILE* currentFile;
+
+	while (endRoomReached == false) { 
+			
+	}
+
+	closedir(dr);
+
+	free(dirPath);
 
 	return 0;
 }
