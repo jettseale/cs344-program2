@@ -80,6 +80,7 @@ int main() {
 	char fileName[256];
 	char line[256];
 	memset(fileName, '\0', 256);
+
 	while ((de = readdir(dr)) != NULL) {
 		if (strncmp(de->d_name, ".", 256) && strncmp(de->d_name, "..", 256)) {
 			char fullPath[256];
@@ -104,22 +105,87 @@ int main() {
 			fclose(file);
 		}
 	}
-	
-	printf("Start room: %s\n", currentRoom);
-	printf("Current room path: %s\n", currentFilePath);
-	printf("End room: %s\n", endRoom);
 
-	bool endRoomReached = false;
-	char* possibleConnections[6];
+	char possibleConnections[6][256];
 	FILE* currentFile;
 
-	while (endRoomReached == false) { 
+	while (true) { 
+		//Find all current room's outbound connections:
+		currentFile = fopen(currentFilePath, "r");
+		if (currentFile == NULL) {
+			perror("Error opening file");
+			exit(1);
+		}
+
+		char sentence[256];
+		char firstLetter;
+		memset(sentence, '\0', 256);
+		int inc = 0;
+		while (!feof(currentFile)) {
+			fgets(sentence, 256, currentFile);
+			firstLetter = sentence[0];
+			if (firstLetter == 'C') {
+				strcpy(possibleConnections[inc], sentence + 14);
+				++inc;		
+			}
+		}
+
+		fclose(currentFile);
+
+		//Trim the \n character from each possible connection name:
+		int j;
+		for (j = 0; j < inc; j++) {
+			possibleConnections[j][strlen(possibleConnections[j]) - 1] = '\0';	
+		}
+
+		//Print UI:
+		bool invalidInput = true;
+		char newRoomName[256];
+		while (invalidInput) {
+			char input[256];
+			printf("\nCURRENT LOCATION: %s\n", currentRoom);
+			printf("\nPOSSIBLE CONNECTIONS: ");
+			int i;
+			for (i = 0; i < inc; i++) {
+				printf("%s", possibleConnections[i]);
+				if (i == inc - 1) {
+					printf(".");
+				} else {
+					printf(", ");
+				}
+			}
+			printf("\n");
+			printf("\nWHERE TO? > ");
+		
+			scanf("%s", input);
 			
+			int k;
+			for (k = 0; k < inc; k++) {
+				if (!strncmp(possibleConnections[k], input, 8)) {
+					invalidInput = false;
+				}
+			}
+			
+			if (invalidInput) {
+				printf("\nHUH? I DON'T UNDERSTAND THAT ROOM. TRY AGAIN.\n");
+			} else {
+				strncpy(newRoomName, input, 8);
+			}
+		}
+
+		memset(currentFilePath, '\0', 256);
+		sprintf(currentFilePath, dirPath, 256);
+		strncat(currentFilePath, newRoomName, 8);
+
+		memset(currentRoom, '\0', 256);
+		strncat(currentRoom, newRoomName, 8);
+		
+		if (!strncmp(endRoom, newRoomName, 8)) {
+			break;
+		}
 	}
-
+	printf("\nYOU HAVE FOUND THE END ROOM. CONGRATULATIONS!\n");
 	closedir(dr);
-
 	free(dirPath);
-
 	return 0;
 }
