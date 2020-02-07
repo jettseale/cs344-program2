@@ -108,6 +108,8 @@ int main() {
 
 	char possibleConnections[6][256];
 	FILE* currentFile;
+	char playerPath[256][256];
+	int stepCount = 0;
 
 	while (true) { 
 		//Find all current room's outbound connections:
@@ -170,6 +172,8 @@ int main() {
 				printf("\nHUH? I DON'T UNDERSTAND THAT ROOM. TRY AGAIN.\n");
 			} else {
 				strncpy(newRoomName, input, 8);
+				strncpy(playerPath[stepCount], input, 8);
+				stepCount++;
 			}
 		}
 
@@ -185,6 +189,11 @@ int main() {
 		}
 	}
 	printf("\nYOU HAVE FOUND THE END ROOM. CONGRATULATIONS!\n");
+	printf("YOU TOOK %d STEPS. YOUR PATH TO VICTORY WAS:\n", stepCount);
+	int n;
+	for(n = 0; n < stepCount; n++) {
+		printf("%s\n", playerPath[n]);
+	}
 	closedir(dr);
 	free(dirPath);
 	return 0;
