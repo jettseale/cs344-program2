@@ -7,6 +7,47 @@
 #include <stdbool.h>
 #include <dirent.h>
 #include <pthread.h>
+#include <time.h>
+
+//Threads:
+pthread_mutex_t myMutex = PTHREAD_MUTEX_INITIALIZER;
+void* get_time(void* argument) {
+	pthread_mutex_lock(&myMutex);
+
+	time_t rawTime;
+	struct tm* timeInfo;
+	time(&rawTime);
+	timeInfo = localtime(&rawTime);
+	char final[256];
+	char temp[256];
+	strftime(temp, 256, "%I", timeInfo);
+	strncat(final, temp, 256);
+	strncat(final, ":", 1);
+	strftime(temp, 256, "%M", timeInfo);
+	strncat(final, temp, 256);
+	strftime(temp, 256, "%P", timeInfo);
+	strncat(final, temp, 256);
+	strncat(final, ", ", 2);
+	strftime(temp, 256, "%A", timeInfo);
+	strncat(final, temp, 256);
+	strncat(final, ", ", 2);
+	strftime(temp, 256, "%B", timeInfo);
+	strncat(final, temp, 256);
+	strncat(final, " ", 1);
+	strftime(temp, 256, "%d", timeInfo);
+	strncat(final, temp, 256);
+	strncat(final, ", ", 2);
+	strftime(temp, 256, "%Y", timeInfo);
+	strncat(final, temp, 256);
+
+	printf("\n%s\n", final);
+	FILE* timeFile = fopen("./currentTime.txt", "w");
+	fputs(final, timeFile);
+	fclose(timeFile);
+
+	pthread_mutex_unlock(&myMutex);
+	return NULL;
+}
 
 //Struct room type:
 struct room {
@@ -61,7 +102,12 @@ char* findNewestDir () {
  * AUTHOR:
  * **************************************************************************************************************/
 int main() {
-	char* dirPath = findNewestDir();
+
+	pthread_mutex_lock(&myMutex);
+	pthread_t timeThread;
+
+	char* dirPath;
+	dirPath = findNewestDir();
 	strncat(dirPath, "/", 256);	
 	
 	struct dirent* de;
@@ -170,20 +216,29 @@ int main() {
 			}
 			
 			if (invalidInput) {
-				printf("\nHUH? I DON'T UNDERSTAND THAT ROOM. TRY AGAIN.\n");
+				if (!strncmp(input, "time", 4)) {
+					pthread_create(&timeThread, NULL, get_time, NULL);
+					pthread_mutex_unlock(&myMutex);
+					pthread_join(timeThread, NULL);
+					pthread_mutex_lock(&myMutex);
+					
+				} else {
+					printf("\nHUH? I DON'T UNDERSTAND THAT ROOM. TRY AGAIN.\n");
+				}
 			} else {
+
 				strncpy(newRoomName, input, 8);
 				strncpy(playerPath[stepCount], input, 8);
 				stepCount++;
+
+				memset(currentFilePath, '\0', 256);
+				sprintf(currentFilePath, dirPath, 256);
+				strncat(currentFilePath, newRoomName, 8);
+
+				memset(currentRoom, '\0', 256);
+				strncat(currentRoom, newRoomName, 8);
 			}
 		}
-
-		memset(currentFilePath, '\0', 256);
-		sprintf(currentFilePath, dirPath, 256);
-		strncat(currentFilePath, newRoomName, 8);
-
-		memset(currentRoom, '\0', 256);
-		strncat(currentRoom, newRoomName, 8);
 		
 		if (!strncmp(endRoom, newRoomName, 8)) {
 			break;
@@ -197,5 +252,6 @@ int main() {
 	}
 	closedir(dr);
 	free(dirPath);
+	pthread_mutex_destroy(&myMutex);
 	return 0;
 }
