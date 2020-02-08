@@ -30,10 +30,10 @@ char* roomNames[10][10] = {
 };
 
 /*****************************************************************************************************************
- * NAME: TODO
- * SYNOPSIS:
- * DESCRIPTION:
- * AUTHOR:
+ * NAME: IsGraphFull
+ * SYNOPSIS: Checks to see if a given array of rooms is full
+ * DESCRIPTION: If every room in the array has more than 3 connections, returns true. Otherwise, returns false.
+ * AUTHOR: Jett Seale (sealee@oregonstate.edu)
  * **************************************************************************************************************/
 bool isGraphFull(struct room* rooms) {
 	int i;
@@ -46,10 +46,10 @@ bool isGraphFull(struct room* rooms) {
 }
 
 /*****************************************************************************************************************
- * NAME: TODO
- * SYNOPSIS:
- * DESCRIPTION:
- * AUTHOR:
+ * NAME: GetRandomRoom
+ * SYNOPSIS: Grabs a random room from the array
+ * DESCRIPTION: Randomly generates a number and uses that as an index to get a random room from the array.
+ * AUTHOR: Jett Seale (sealee@oregonstate.edu)
  * **************************************************************************************************************/
 struct room getRandomRoom(struct room* rooms) {
 	int randNum = rand() % 7;
@@ -57,10 +57,10 @@ struct room getRandomRoom(struct room* rooms) {
 }
 
 /*****************************************************************************************************************
- * NAME: TODO
- * SYNOPSIS:
- * DESCRIPTION:
- * AUTHOR:
+ * NAME: CanAddConnectionFrom
+ * SYNOPSIS: Checks to see if a connection can be added to a given room
+ * DESCRIPTION: Returns true if the room has less than 6 connections, false otherwise
+ * AUTHOR: Jett Seale (sealee@oregonstate.edu)
  * **************************************************************************************************************/
 bool canAddConnectionFrom(struct room x) {
 	if (x.numConnections < 6) {
@@ -71,10 +71,10 @@ bool canAddConnectionFrom(struct room x) {
 }
 
 /*****************************************************************************************************************
- * NAME: TODO
- * SYNOPSIS:
- * DESCRIPTION:
- * AUTHOR:
+ * NAME: ConnectionAlreadyExists
+ * SYNOPSIS: Checks to see if two rooms are already connected
+ * DESCRIPTION: If one of the rooms already has the other's id in its connections array, returns true
+ * AUTHOR: Jett Seale (sealee@oregonstate.edu)
  * **************************************************************************************************************/
 bool connectionAlreadyExists(struct room x, struct room y) {
 	int i;
@@ -87,10 +87,10 @@ bool connectionAlreadyExists(struct room x, struct room y) {
 }
 
 /*****************************************************************************************************************
- * NAME: TODO
- * SYNOPSIS:
- * DESCRIPTION:
- * AUTHOR:
+ * NAME: ConnectRoom
+ * SYNOPSIS: Connects two rooms
+ * DESCRIPTION: Increments the number of connections for both rooms and adds them to each other's connetion arrays
+ * AUTHOR: Jett Seale (sealee@oregonstate.edu)
  * **************************************************************************************************************/
 void connectRoom(struct room* x, struct room* y) {
 	x->connections[x->numConnections] = y;
@@ -101,10 +101,10 @@ void connectRoom(struct room* x, struct room* y) {
 }
 
 /*****************************************************************************************************************
- * NAME: TODO
- * SYNOPSIS:
- * DESCRIPTION:
- * AUTHOR:
+ * NAME: IsSameRoom
+ * SYNOPSIS: Checks to see if two rooms are the same room
+ * DESCRIPTION: If their ID's are the same, returns true. Otherwise, false
+ * AUTHOR: Jett Seale (sealee@oregonstate.edu)
  * **************************************************************************************************************/
 bool isSameRoom(struct room x, struct room y) {
 	if (x.id == y.id) {
@@ -115,10 +115,10 @@ bool isSameRoom(struct room x, struct room y) {
 }
 
 /*****************************************************************************************************************
- * NAME: TODO
- * SYNOPSIS:
- * DESCRIPTION:
- * AUTHOR:
+ * NAME: AddRandomConnection
+ * SYNOPSIS: Loops until the room's connections are full, adding random connections along the way
+ * DESCRIPTION: Checks to see if connections are valid before connecting
+ * AUTHOR: Jett Seale (sealee@oregonstate.edu)
  * **************************************************************************************************************/
 void addRandomConnection(struct room* rooms) {
 	struct room a, b;
@@ -139,10 +139,10 @@ void addRandomConnection(struct room* rooms) {
 }
 
 /*****************************************************************************************************************
- * NAME: TODO
- * SYNOPSIS:
- * DESCRIPTION:
- * AUTHOR:
+ * NAME: Main
+ * SYNOPSIS: Creates an array of room structs, connects them, reads data into files
+ * DESCRIPTION: Is the main function called at the start of the program
+ * AUTHOR: Jett Seale (sealee@oregonstate.edu)
  * **************************************************************************************************************/
 int main() {
 
@@ -204,13 +204,13 @@ int main() {
 			strncat(temp, rooms[l].name, NAME_MAX + 1); //Append filename to end of dir path
 			file = fopen(temp, "w"); //Make file in the correct dir
 
-			fputs("ROOM NAME: ", file); 
+			fputs("ROOM NAME: ", file); //Insert room names
 			fputs(rooms[l].name, file);
 			fputs("\n", file);
 
 			int k;
 			for (k = 0; k < rooms[l].numConnections; k++) {
-				fputs("CONNECTION ", file);
+				fputs("CONNECTION ", file); //Insert connections
 				char conn[NAME_MAX + 1];
 				snprintf(conn, NAME_MAX + 1, "%d", k + 1);
 				fputs(conn, file);
@@ -219,7 +219,7 @@ int main() {
 				fputs("\n", file);	
 			}
 
-			fputs("ROOM TYPE: ", file);
+			fputs("ROOM TYPE: ", file); //Insert room types
 			fputs(rooms[l].type, file);
 			fputs("\n", file);
 
